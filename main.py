@@ -97,5 +97,36 @@ def create_artist(artist: ArtistCreate, db: sqlite3.Connection = Depends(get_db)
     )
     db.commit()
     return dict(db.execute("SELECT * FROM artists WHERE id = ?", (cursor.lastrowid,)).fetchone()
-                
-@app.get                )
+    )                
+@app.get(
+    "/albums",
+    response_model=List[Album],
+    tags=["Albums"],
+    summary="List albums",
+    description="""
+Returns albums. Filter by **artist_id**, **year**, or **genre**."""
+)                
+def list_albums(
+    artist_id: Optional[int] = Query(None, description="Filter albums by artist ID"),
+    year: Optional[int] = Query(None, description="Filter albums by release year"),
+    genre: Optional[str] = Query(None, description="Filter albums by genre"),
+    limit: int = Query(50, le=200, description="Limit the number of results returned (max 200)"),
+    offset: int = Query(0, description="Offset for pagination"),
+    db: sqlite3.Connection = Depends(get_db),
+):
+    record_request(db, "/albums", "GET")
+    query = "SELECT * FROM albums WHERE 1=1"
+    params = []
+    if artist_id:
+        query += " AND artist_id = ?"
+        params.append(artist_id)
+    if year:
+        query += " AND release_year = ?"
+        params.append(year)
+    if genre:
+        query += " AND LOWER(genre) LIKE LOWER(?)"
+        params.append(f"%{genre}%")
+    query += " ORDER BY title LIMIT ? OFFSET ?"
+    params += [limit, offset]
+    rows = db.execute(query, params).fetchall()
+    return [dict(r) for r in rows]
