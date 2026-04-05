@@ -84,4 +84,18 @@ def get_artist(artist_id: int, db: sqlite3.Connection = Depends(get_db)):
     """,
 )
 def create_artist(artist: ArtistCreate, db: sqlite3.Connection = Depends(get_db)):
-    
+    user: dict = Depends(require auth))):
+    record_request(db, "/artists", "POST")
+    existing = db.execute(
+        "SELECT id FROM artists WHERE LOWER(name) = LOWER(?)", (artist.name,)
+    ).fetchone()
+        if existing:
+        raise HTTPException(status_code=409, detail=f"Artist '{artist.name}' already exists (id={existing['id']})")
+    cursor = db.execute(
+        "INSERT INTO artists (name, genre, country, formed_year, bio, website, submitted_by) VALUES (?,?,?,?,?,?,?)",
+        (artist.name, artist.genre, artist.country, artist.formed_year, artist.bio, artist.website, user["id"]),
+    )
+    db.commit()
+    return dict(db.execute("SELECT * FROM artists WHERE id = ?", (cursor.lastrowid,)).fetchone()
+                
+@app.get                )
