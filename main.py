@@ -13,8 +13,8 @@ from models import (
 )
 from database import init_db, get_db, record_request
 app=FastAPI(
-    title="Open Music API",
-    description="A simple API for adding and querying artists, albums, and tracks.",
+    title="open music api",
+    description="a simple api for adding and querying artists, albums, and tracks.",
     version="1.0.0",
 )
 app.add_middleware(
@@ -31,14 +31,14 @@ def startup():
     "/artists",
     response_model=List[Artist],
     tags=["Artists"],
-    summary="List all artists",
-    description="Retrieve a list of artists in the database. Supports searching by genre, country and name",
+    summary="lst all artists",
+    description="rtrieve a list of artists in the database. spports searching by genre, country and name",
 )
 def list_artists(
-    genre: Optional[str] = Query(None, description="Filter artists by genre"),
-    country: Optional[str] = Query(None, description="Filter artists by country"),
-    search: Optional[str] = Query(None, description="Search artists by name"),
-    limit: int = Query(50, le=200, description="Limit the number of results returned (max 200)"),
+    genre: Optional[str] = Query(None, description="flter artists by genre"),
+    country: Optional[str] = Query(None, description="flter artists by country"),
+    search: Optional[str] = Query(None, description="search artists by name"),
+    limit: int = Query(50, le=200, description="lmit the number of results returned (max 200)"),
     offset: int = Query(0, description="Offset for pagination"),
     db: sqlite3.Connection = Depends(get_db),
 ):
@@ -58,7 +58,7 @@ def list_artists(
     params += [limit, offset]
     rows = db.execute(query, params).fetchall()
     return [dict(r) for r in rows]
- 
+#----------------- artist get-----------------------
  @app.get(
     "/artists/{artist_id}",
     response_model=Artist,
@@ -78,9 +78,9 @@ def get_artist(artist_id: int, db: sqlite3.Connection = Depends(get_db)):
     response_model=Artist,
     status_code=201,
     tags=["Artists"],
-    summary="Create a new artist",
+    summary="ceate a new artist",
     description="""
-    Submits a new artist to the database.
+    sbmits a new artist to the database.
     """,
 )
 def create_artist(artist: ArtistCreate, db: sqlite3.Connection = Depends(get_db)):
@@ -98,6 +98,7 @@ def create_artist(artist: ArtistCreate, db: sqlite3.Connection = Depends(get_db)
     db.commit()
     return dict(db.execute("SELECT * FROM artists WHERE id = ?", (cursor.lastrowid,)).fetchone()
     )                
+#------------------------------- albums----------------------
 @app.get(
     "/albums",
     response_model=List[Album],
