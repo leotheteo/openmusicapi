@@ -1,0 +1,8 @@
+# 1. Ignore everything at the root level
+/*
+
+# 2. Specifically allow the openmusicdb directory
+!/openmusicdb/
+
+# 3. (Optional) If you have a .gitignore file itself that you want to keep
+!.gitignore
